@@ -1,0 +1,81 @@
+.page-header.navbar .page-logo .logo-default {
+    margin: 10px 5px;
+    max-width: 180px;
+    text-align: center;
+}
+
+@media (max-width:991px) {
+  .table .btn { margin-bottom: 3px; }
+}
+/*--------------- Loader Overlay ---------------*/
+#overlayDocument{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(38, 38, 46);
+    opacity: 0.9;
+    z-index: 10000;
+    text-align:center;
+}
+.loader { 
+	display: inline-block;
+	top: calc( 50% - 35px );
+	z-index: 50;
+	height:70px; 
+	width:70px; 
+	position: relative;
+}
+.bar { 
+	display: inline-block; 
+	position: relative; 
+	margin-right: 5px; 
+	width: 8px; 
+	height: 0px; 
+	overflow: hidden; 
+	background: linear-gradient(to bottom, #02fbb0, #00f7fe); 
+	color: transparent; 
+	animation-name: pulse; 
+	animation-duration: 1s; 
+	animation-iteration-count: infinite; 
+}
+.b1 {
+	animation-delay: 0.1s;
+}
+.b2 {
+	animation-delay: 0.2s;
+}
+.b3 {
+	animation-delay: 0.3s;
+}
+.b4 {
+	animation-delay: 0.4s;
+}
+@keyframes pulse {
+	0% {
+		height: 1px;
+		margin-top: 0;
+  	}
+  	10% {
+    	height: 40px;
+    	margin-top: -40px;
+  	}
+  	50% {
+    	height: 20px;
+    	margin-top: -20px;
+  	}
+  	60% {
+    	height: 30px;
+    	margin-top: -30px;
+  	}
+  	80% {
+    	height: 60px;
+    	margin-top: -60px;
+  	}
+  	100% {
+    	height: 1px;
+    	margin-top: 0;
+  	}
+}
+/*--------------- Loader Overlay ---------------*/
