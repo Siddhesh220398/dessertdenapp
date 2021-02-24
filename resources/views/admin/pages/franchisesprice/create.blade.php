@@ -18,7 +18,7 @@
             <div class="portlet-body">
                 <form id="frmFranchisePrifranchisece" class="form-horizontal" role="form" method="POST" action="{{ route('admin.franchisesprice.store') }}" enctype="multipart/form-data">
                     @csrf
-                    
+
                     <div class="form-group" >
                         <label for="city" class="col-md-2 control-label">{!! $mend_sign !!}Franchise</label>
                         <div class="col-md-6">
@@ -26,39 +26,59 @@
                                <option value="">Select Franchise</option>
                                @foreach($franchises as $franchise)
                                <option value="{{$franchise->id}}" @if(old('franchise_id') == $franchise->id) selected @endif>{{$franchise->name}}</option>
-                               @endforeach                       
+                               @endforeach
                            </select>
                        </div>
                    </div>
 
-                   <div class="form-group" >
-                    <label for="city" class="col-md-2 control-label">{!! $mend_sign !!}Category</label>
-                    <div class="col-md-6">
-                     <select class="form-control" name="category_id" id="category_id">
-                         <option value="">Select Category</option>
-                         @foreach($categories as $category)
-                         <option value="{{$category->id}}" @if(old('category_id') == $category->id) selected @endif>{{$category->name}}</option>
-                         @endforeach                       
-                     </select>
-                 </div>
-             </div>
+                    <div class="form-group">
 
-                    
-                    <div class="form-group{{ $errors->has('percentage') ? ' has-error' : '' }}">
-                        <label for="percentage" class="col-md-2 control-label">{!! $mend_sign !!}Percentage</label>
+                        <label for="city" class="col-md-2 control-label">{!! $mend_sign !!}Price Type</label>
+
                         <div class="col-md-6">
-                            <div class="input-icon">
-                                <i class="fa fa-map-marker"></i>
-                                <input type="text" class="form-control" name="percentage" id="percentage" placeholder="Enter Percentage"  value="{{ old('percentage') }}">
-                                @if ($errors->has('percentage'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('percentage') }}</strong>
-                                    </span>
-                                @endif 
-                            </div>
+
+                            <select class="form-control pricetype_id" name="pricetype_id" id="pricetype_id">
+
+                                <option value="">Select Type</option>
+
+                                @foreach($pricetypes as $pricetype)
+
+                                    <option value="{{$pricetype->id}}">{{$pricetype->type}}</option>
+
+                                @endforeach
+
+                            </select>
+
                         </div>
-                    </div> 
-                    
+
+                    </div>
+                    <br>
+
+                    <table class="col-12 table" border="1"
+                           style="width:80%;height: 100%; margin-left: 100px;  text-align: center;">
+                        <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Percentage</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($categories as $category)
+                            <tr>
+                                <td>{{$category->name}}</td>
+                                <td><input type="number" class="form-control percentage"
+                                           name="percentage[{{$category->id}}]" id="percentage"
+                                           placeholder="Percentage">
+
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+
+
+                    <br>
+
                     <div class="form-group">
                         <div class="col-md-offset-2 col-md-10">
                             <button type="submit" class="btn green">Submit</button>
@@ -89,7 +109,7 @@ $(document).ready(function() {
             percentage:{
                 required:true,
             },
-            
+
 
         },
         messages: {
@@ -128,6 +148,24 @@ $(document).ready(function() {
         else{
             return false;
         }
+    });
+    $(document).on("change", ".pricetype_id", function () {
+
+        $.ajax({
+            type: "POST",
+            url: "{{route('admin.pricetype.select')}}",
+            data: {
+                '_token': $('input[name="_token"]').val(),
+                'pricetype_id': $('.pricetype_id').val()
+            },
+            success: function (data) {
+                console.log(data['percentage']);
+                $(".percentage").val("");
+                // console.log(data['percentage']);
+                $(".percentage").val(data['percentage']);
+
+            }
+        });
     });
 });
 

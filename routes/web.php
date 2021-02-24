@@ -54,6 +54,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth:admin', 'namespace' => 
     Route::post('orders/print', 'OrderController@print')->name('admin.orders.print');
 
     Route::get('orders/filter', 'OrderController@filter')->name('admin.order.filter');
+    Route::post('pricetype/select', 'FranchisePriceController@select')->name('admin.pricetype.select');
     Route::post('orders/search', 'OrderController@search')->name('admin.orders.search');
     Route::post('products/search', 'ProductController@search')->name('admin.products.search');
     Route::get('invoices/series', 'InvoiceController@series')->name('admin.invoices.series');

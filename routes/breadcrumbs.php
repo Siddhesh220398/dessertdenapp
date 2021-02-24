@@ -540,3 +540,27 @@ Breadcrumbs::register('edit_salereturninvoices', function($breadcrumbs, $saleret
     $breadcrumbs->parent('salereturninvoices');
     $breadcrumbs->push('Edit Invoice', route('admin.salereturninvoices.edit', $salereturninvoice->id));
 });
+
+/*PriceType*/
+Breadcrumbs::register('pricetypes', function($breadcrumbs)
+{
+    $breadcrumbs->parent('dashboard');
+    $breadcrumbs->push('pricetype', route('admin.pricetypes.index'));
+});
+Breadcrumbs::register('add_pricetypes', function($breadcrumbs)
+{
+    $breadcrumbs->parent('pricetypes');
+    $breadcrumbs->push('Add New Price Type', route('admin.pricetypes.create'));
+});
+
+Breadcrumbs::register('pricetypes_details', function($breadcrumbs, $pricetypes)
+{
+    $breadcrumbs->parent('pricetypes');
+    $breadcrumbs->push('View Price type', route('admin.pricetypes.show', $pricetypes));
+});
+
+Breadcrumbs::register('edit_pricetypes', function($breadcrumbs, $pricetype)
+{
+    $breadcrumbs->parent('pricetypes');
+    $breadcrumbs->push('Edit Price Type', route('admin.pricetypes.edit', $pricetype->id));
+});

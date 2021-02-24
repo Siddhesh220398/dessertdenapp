@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Franchise;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use App\Models\Franchise;
 use App\Models\FranchisePrice;
+use App\Models\PriceType;
 use Illuminate\Http\Request;
 
 class FranchisePriceController extends Controller
@@ -18,25 +19,30 @@ class FranchisePriceController extends Controller
 
     public function create()
     {
-    	$franchises = Franchise::where('active', 1)->get();
-    	$categories=Category::where('active',1)->get();
-        return view('admin.pages.franchisesprice.create',compact('franchises','categories'));
+        $franchises = Franchise::where('active', 1)->get();
+        $pricetypes = PriceType::all();
+        $categories = Category::where('active', 1)->get();
+        return view('admin.pages.franchisesprice.create', compact('franchises','pricetypes', 'categories'));
     }
 
     public function store(Request $request)
     {
+//        dd($request->all());
         $rules = [
-            'category_id' => 'required',
             'franchise_id' => 'required',
-            'percentage' => 'required',
+
         ];
         $this->validateForm($request->all(), $rules);
-        
-        $franchise = new FranchisePrice;
-        $franchise->category_id = $request->category_id;
-        $franchise->franchise_id = $request->franchise_id;
-        $franchise->percentage = $request->percentage;
-        $franchise->save();
+        foreach ($request->percentage as $key => $val) {
+            if ($val != 0) {
+                $fp = FranchisePrice::where(['franchise_id' => $request->franchise_id, 'category_id' => $key])->first();
+                if ($fp) {
+                    $fp->update(['percentage' => $val]);
+                } else {
+                    FranchisePrice::create(['franchise_id' => $request->franchise_id, 'category_id' => $key, 'percentage' => $val]);
+                }
+            }
+        }
 
         flash('franchise Price added successfully.')->success();
         return redirect()->route('admin.franchisesprice.index');
@@ -47,57 +53,51 @@ class FranchisePriceController extends Controller
         abort(404);
     }
 
-    public function edit(FranchisePrice $franchisesprice)
+    public function edit(Franchise $franchisesprice)
     {
-    	$franchises = Franchise::where('active', 1)->get();
-    	$categories=Category::where('active',1)->get();
-        return view('admin.pages.franchisesprice.edit', compact('franchisesprice', 'franchises','categories'));
+
+        $franchises = Franchise::where('active', 1)->get();
+        $pricetypes = PriceType::all();
+        $categories = Category::where('active', 1)->get();
+        return view('admin.pages.franchisesprice.edit', compact('franchisesprice', 'franchises', 'categories', 'pricetypes'));
     }
 
-    public function update(Request $request, FranchisePrice $franchisesprice)
+    public function update(Request $request, Franchise $franchisesprice)
     {
-        // dd($id);
-        if(!empty($request->action) && $request->action == 'change_status'){
-
-            $content = ['status'=>204, 'message'=>"something went wrong"];
-            $franchises=FranchisePrice::where('id',$franchisesprice->id)->update(['active' => ($request->value == 'y' ? 0 : 1)]) ;       
-          
-          
-
-            $content['status']=200;
-            $content['message'] = "Status updated successfully.";
-            return response()->json($content);
-        }else{
-            $rules = [
-            'category_id' => 'required',
+        $rules = [
             'franchise_id' => 'required',
-            'percentage' => 'required',
-        	];
+        ];
 
-            $this->validateForm($request->all(), $rules);
-             
-            FranchisePrice::where('id',$franchisesprice->id)->update(['category_id'=>$request->category_id,'franchise_id' => $request->franchise_id,'percentage'=> $request->percentage]);
-           
-            
-            flash('Franchise updated successfully.')->success();
-            return redirect()->route('admin.franchisesprice.index');
+        $this->validateForm($request->all(), $rules);
+        foreach ($request->percentage as $key => $val) {
+            if ($val != 0) {
+                $fp = FranchisePrice::where(['franchise_id' => $request->franchise_id, 'category_id' => $key])->first();
+                if ($fp) {
+                    $fp->update(['percentage' => $val]);
+                } else {
+                    FranchisePrice::create(['franchise_id' => $request->franchise_id, 'category_id' => $key, 'percentage' => $val]);
+                }
+            }
         }
+        flash('Franchise updated successfully.')->success();
+        return redirect()->route('admin.franchisesprice.index');
+
     }
 
     public function destroy(Request $request, $id)
     {
-        if(!empty($request->action) && $request->action == 'delete_all'){
-            $content = ['status'=>204, 'message'=>"something went wrong"];
-            FranchisePrice::destroy(explode(',',$request->ids));
-            $content['status']=200;
+        if (!empty($request->action) && $request->action == 'delete_all') {
+            $content = ['status' => 204, 'message' => "something went wrong"];
+            FranchisePrice::destroy(explode(',', $request->ids));
+            $content['status'] = 200;
             $content['message'] = "Franchises deleted successfully.";
             return response()->json($content);
-        }else{    
+        } else {
             FranchisePrice::destroy($id);
-            if(request()->ajax()){
-                $content = array('status'=>200, 'message'=>"franchise deleted successfully.");
+            if (request()->ajax()) {
+                $content = array('status' => 200, 'message' => "franchise deleted successfully.");
                 return response()->json($content);
-            }else{
+            } else {
                 flash('franchise deleted successfully.')->success();
                 return redirect()->route('admin.franchisesprice.index');
             }
@@ -107,42 +107,58 @@ class FranchisePriceController extends Controller
     public function listing(Request $request)
     {
         extract($this->DTFilters($request->all()));
-        $franchises = FranchisePrice::where('id', '<>', 0)->orderBy('id','DESC');
-      
-        if($search != ''){
-            // $id=Franchise::where("name", "like", "%{$search}%")->value('id');
-            $franchises->where(function($query) use ($search){
-                $query->where("id", "like", "%{$search}%");
-            });
-        }
+        $franchises = FranchisePrice::groupBy('franchise_id')->get('franchise_id');
+
+
+//        if($search != ''){
+//            // $id=Franchise::where("name", "like", "%{$search}%")->value('id');
+//            $franchises->where(function($query) use ($search){
+//                $query->where("id", "like", "%{$search}%");
+//            });
+//        }
         $count = $franchises->count();
- 
+
         $records["recordsTotal"] = $count;
         $records["recordsFiltered"] = $count;
         $records['data'] = array();
 
-        $franchises = $franchises->offset($offset)->limit($limit)->orderBy($sort_column,$sort_order)->get();
+//        $franchises = $franchises->offset($offset)->limit($limit)->orderBy($sort_column,$sort_order)->get();
 
-        foreach ($franchises as $franchise) 
-       
-        {
+        foreach ($franchises as $franchise) {
+//            dd($franchise);
             $params = array(
-                'url'=>route('admin.franchisesprice.update',$franchise->id),
-                'checked'=> ($franchise->active == 0) ? "checked" : "",
-                'getaction'=>'',
-                'class'=>'',
-                'id' => $franchise->id
+                'url' => route('admin.franchisesprice.update', $franchise->franchise_id),
+                'checked' => ($franchise->active == 0) ? "checked" : "",
+                'getaction' => '',
+                'class' => '',
+                'id' => $franchise->franchise_id
             );
-            // dd($params);
+            $ar = array();
+            $categories = FranchisePrice::where('franchise_id', $franchise->franchise_id)->get();
+            foreach ($categories as $category) {
+
+                $ar[] = $category->category->name . ' - ' . $category->percentage . '%  <br>';
+
+            }
+
             $records['data'][] = [
-                'checkbox'=>view('admin.shared.checkbox')->with('id',$franchise->id)->render(),
+                'checkbox' => view('admin.shared.checkbox')->with('id', $franchise->franchise_id)->render(),
                 'franchise_id' => $franchise->franchise->name,
-    			'category_id' => $franchise->category->name,
-    			'percentage' => $franchise->percentage,
-    			'active' => view('admin.shared.switch')->with(['params'=> $params])->render(),
-                'action' => view('admin.shared.actions')->with('id', $franchise->id)->render(),
+                'category_id' => $ar,
+//    			'percentage' => $franchise->percentage,
+                'active' => view('admin.shared.switch')->with(['params' => $params])->render(),
+                'action' => view('admin.shared.actions')->with('id', $franchise->franchise_id)->render(),
             ];
         }
-        return $records; 
+        return $records;
+    }
+
+    public function select(Request $request)
+    {
+        $percentage = PriceType::where('id', $request->pricetype_id)->value('percentage');
+        $content['status'] = 200;
+        $content['percentage'] = $percentage;
+        return response()->json($content);
+
     }
 }

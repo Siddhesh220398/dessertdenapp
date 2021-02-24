@@ -4,7 +4,7 @@
 
 @section('breadcrumb')
 
-{!! Breadcrumbs::render('edit_franchisesprice', $franchisesprice) !!}
+    {!! Breadcrumbs::render('edit_franchisesprice', $franchisesprice) !!}
 
 @endsection
 
@@ -12,147 +12,144 @@
 
 @section('content')
 
- <div class="row ">
+    <div class="row ">
 
-    <div class="col-md-12">
+        <div class="col-md-12">
 
-        <!-- BEGIN SAMPLE FORM PORTLET-->
+            <!-- BEGIN SAMPLE FORM PORTLET-->
 
-        <div class="portlet light bordered">
+            <div class="portlet light bordered">
 
-            <div class="portlet-title">
+                <div class="portlet-title">
 
-                <div class="caption">
+                    <div class="caption">
 
-                    <i class="fa {{ $icon }} font-green"></i>
+                        <i class="fa {{ $icon }} font-green"></i>
 
-                    <span class="caption-subject font-green bold uppercase">{{ $title }}</span>
+                        <span class="caption-subject font-green bold uppercase">{{ $title }}</span>
+
+                    </div>
 
                 </div>
 
-            </div>
+                <div class="portlet-body">
 
-            <div class="portlet-body">
+                    <form id="frmFranchisesPrice" class="form-horizontal" role="form" method="POST"
+                          action="{{ route('admin.franchisesprice.update', $franchisesprice->id) }}"
+                          enctype="multipart/form-data">
 
-                <form id="frmFranchisesPrice" class="form-horizontal" role="form" method="POST" action="{{ route('admin.franchisesprice.update', $franchisesprice->id) }}" enctype="multipart/form-data">
+                        @csrf
 
-                    @csrf
-
-                    @method('PUT')
-
-
-
-                    
-
-                    <div class="form-group" >
-
-                        <label for="city" class="col-md-2 control-label">{!! $mend_sign !!}Franchise</label>
-
-                        <div class="col-md-6">
-
-                           <select class="form-control" name="franchise_id" id="franchise_id">
-
-                               <option value="">Select Franchise</option>
-
-                               @foreach($franchises as $franchise)
-
-                               <option value="{{$franchise->id}}" @if($franchisesprice->franchise_id == $franchise->id) selected @endif>{{$franchise->name}}</option>
-
-                               @endforeach                       
-
-                           </select>
-
-                       </div>
-
-                   </div>
+                        @method('PUT')
 
 
-
-                   <div class="form-group" >
-
-                    <label for="city" class="col-md-2 control-label">{!! $mend_sign !!}Category</label>
-
-                    <div class="col-md-6">
-
-                     <select class="form-control" name="category_id" id="category_id">
-
-                         <option value="">Select Category</option>
-
-                         @foreach($categories as $category)
-
-                         <option value="{{$category->id}}" @if($franchisesprice->category_id == $category->id) selected @endif>{{$category->name}}</option>
-
-                         @endforeach                       
-
-                     </select>
-
-                 </div>
-
-             </div>
+                        <div class="form-group{{ $errors->has('franchise') ? ' has-error' : '' }}">
 
 
+                            <label for="city" class="col-md-2 control-label">Franchise</label>
 
-                    
+                            <div class="col-md-6">
 
-                    <div class="form-group{{ $errors->has('percentage') ? ' has-error' : '' }}">
+                                <div class="input-icon">
 
-                        <label for="percentage" class="col-md-2 control-label">{!! $mend_sign !!}Percentage</label>
+                                    <i class="fa fa-map-marker"></i>
 
-                        <div class="col-md-6">
+                                    <input type="text" class="form-control" name="franchise" id="franchise"
+                                           value="{{ $franchisesprice->name }} " readonly>
+                                    <input type="hidden" class="form-control" name="franchise_id" id="franchise_id"
+                                           value="{{ $franchisesprice->id }} ">
 
-                            <div class="input-icon">
+                                    @if ($errors->has('franchise'))
 
-                                <i class="fa fa-map-marker"></i>
+                                        <span class="help-block">
 
-                                <input type="text" class="form-control" name="percentage" id="percentage" placeholder="Enter Percentage"  value="{{ old('percentage',$franchisesprice->percentage) }}">
+                                    <strong>{{ $errors->first('franchise') }}</strong>
 
-                                @if ($errors->has('percentage'))
+                                </span>
 
-                                    <span class="help-block">
+                                    @endif
 
-                                        <strong>{{ $errors->first('percentage') }}</strong>
-
-                                    </span>
-
-                                @endif 
+                                </div>
 
                             </div>
 
                         </div>
 
-                    </div> 
+
+                        <div class="form-group">
+
+                            <label for="city" class="col-md-2 control-label">{!! $mend_sign !!}Price Type</label>
+
+                            <div class="col-md-6">
+
+                                <select class="form-control pricetype_id" name="pricetype_id" id="pricetype_id">
+
+                                    <option value="">Select Type</option>
+
+                                    @foreach($pricetypes as $pricetype)
+
+                                        <option value="{{$pricetype->id}}">{{$pricetype->type}}</option>
+
+                                    @endforeach
+
+                                </select>
+
+                            </div>
+
+                        </div>
+                        <br>
+
+                        <table class="col-12 table" border="1"
+                               style="width:80%;height: 100%; margin-left: 100px;  text-align: center;">
+                            <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Percentage</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($categories as $category)
+                                <tr>
+                                    <td>{{$category->name}}</td>
+                                    <td><input type="number" class="form-control percentage"
+                                               name="percentage[{{$category->id}}]" id="percentage"
+                                               placeholder="Percentage"
+                                               value="{{\App\Models\FranchisePrice::where(['franchise_id' =>$franchisesprice->id,'category_id'=>$category->id])->value('percentage')}}">
+
+                                    </td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
 
 
+                        <br>
 
 
+                        <div class="form-group">
 
+                            <div class="col-md-offset-2 col-md-10">
 
+                                <button type="submit" class="btn green">Submit</button>
 
-                    <div class="form-group">
+                                <a href="{{route('admin.franchisesprice.index')}}" class="btn red">Cancel</a>
 
-                        <div class="col-md-offset-2 col-md-10">
-
-                            <button type="submit" class="btn green">Submit</button>
-
-                            <a href="{{route('admin.franchisesprice.index')}}" class="btn red">Cancel</a>
+                            </div>
 
                         </div>
 
-                    </div>
 
+                    </form>
 
-
-                </form>
+                </div>
 
             </div>
 
+            <!-- End: SAMPLE FORM PORTLET -->
+
         </div>
 
-        <!-- End: SAMPLE FORM PORTLET -->
-
     </div>
-
-</div>
 
 @endsection
 
@@ -160,116 +157,106 @@
 
 @push('scripts')
 
-<script type="text/javascript">
+    <script type="text/javascript">
 
 
+        $(document).ready(function () {
 
-$(document).ready(function() {
+            $("#frmFranchisesPrice").validate({
 
-    $("#frmFranchisesPrice").validate({
+                rules: {
 
-        rules: {
+                    franchise_id: {
 
-             franchise_id:{
+                        required: true,
 
-                required:true,
-
-            },
-
-            category_id:{
-
-                required:true,
-
-            },
-
-            percentage:{
-
-                required:true,
-
-            },
-
-        },
-
-        messages: {
-
-            franchise_id:{
-
-                required:"@lang('validation.required',['attribute'=>'franchise_id'])",
-
-            },
-
-            category_id:{
-
-                required:"@lang('validation.required',['attribute'=>'category_id'])",
-
-            },
-
-             percentage:{
-
-                required:"@lang('validation.required',['attribute'=>'percentage'])",
-
-            },
+                    },
 
 
+                },
 
-        },
+                messages: {
 
-        errorClass: 'help-block',
+                    franchise_id: {
 
-        errorElement: 'span',
+                        required: "@lang('validation.required',['attribute'=>'franchise_id'])",
 
-        highlight: function (element) {
-
-           $(element).closest('.form-group').addClass('has-error');
-
-        },
-
-        unhighlight: function (element) {
-
-           $(element).closest('.form-group').removeClass('has-error');
-
-        },
-
-        errorPlacement: function (error, element) {
-
-            if (element.attr("data-error-container")) {
-
-                error.appendTo(element.attr("data-error-container"));
-
-            } else {
-
-                error.insertAfter(element);
-
-            }
-
-        }
-
-    });
+                    },
 
 
+                },
 
-    $("#frmFranchisesPrice").submit(function(){
+                errorClass: 'help-block',
 
-        if($(this).valid()){
+                errorElement: 'span',
 
-            addOverlay();
+                highlight: function (element) {
 
-            return true;
+                    $(element).closest('.form-group').addClass('has-error');
 
-        }
+                },
 
-        else{
+                unhighlight: function (element) {
 
-            return false;
+                    $(element).closest('.form-group').removeClass('has-error');
 
-        }
+                },
 
-    });
+                errorPlacement: function (error, element) {
 
-});
+                    if (element.attr("data-error-container")) {
+
+                        error.appendTo(element.attr("data-error-container"));
+
+                    } else {
+
+                        error.insertAfter(element);
+
+                    }
+
+                }
+
+            });
 
 
+            $("#frmFranchisesPrice").submit(function () {
 
-</script>
+                if ($(this).valid()) {
+
+                    addOverlay();
+
+                    return true;
+
+                } else {
+
+                    return false;
+
+                }
+
+            });
+
+            $(document).on("change", ".pricetype_id", function () {
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{route('admin.pricetype.select')}}",
+                    data: {
+                        '_token': $('input[name="_token"]').val(),
+                        'pricetype_id': $('.pricetype_id').val()
+                    },
+                    success: function (data) {
+                        console.log(data['percentage']);
+                        $(".percentage").val("");
+                        // console.log(data['percentage']);
+                        $(".percentage").val(data['percentage']);
+
+                    }
+                });
+            });
+
+        });
+
+
+    </script>
 
 @endpush

@@ -85,9 +85,11 @@ Route::group(['middleware' => ['permission', 'revalidate'], 'namespace' => 'Admi
     Route::get('salereturns/listing', 'SaleReturnController@listing')->name('salereturns.listing');
     Route::resource('salereturns', 'SaleReturnController');
 
-
     Route::get('salereturninvoices/listing', 'SaleReturnInvoiceController@listing')->name('salereturninvoices.listing');
     Route::resource('salereturninvoices', 'SaleReturnInvoiceController');
+
+    Route::get('pricetypes/listing', 'PriceTypeController@listing')->name('pricetypes.listing');
+    Route::resource('pricetypes', 'PriceTypeController');
 
 });
 
